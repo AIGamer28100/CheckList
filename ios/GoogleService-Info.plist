@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>402421191781-n46kpqcrligoc16bq86f844lc3ngo3a8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.402421191781-n46kpqcrligoc16bq86f844lc3ngo3a8</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBLq8RlsuJNj4Rnu-5Eyq53gP5rJFO8a_E</string>
+	<key>GCM_SENDER_ID</key>
+	<string>402421191781</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.todoApp</string>
+	<key>PROJECT_ID</key>
+	<string>checklist-todo-app-aigamer</string>
+	<key>STORAGE_BUCKET</key>
+	<string>checklist-todo-app-aigamer.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:402421191781:ios:d2652d5d3b758d87e3628c</string>
+</dict>
+</plist>
