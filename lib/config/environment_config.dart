@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// Environment configuration service
 /// Handles loading and accessing environment variables
 class EnvironmentConfig {
-  static const String _defaultEnvFile = '.env';
+  static const String _defaultEnvFile = 'config/env/.env';
 
   /// Initialize the environment configuration
   /// Load the appropriate .env file based on the environment

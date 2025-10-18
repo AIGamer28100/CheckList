@@ -39,7 +39,7 @@ A modern, cross-platform todo/checklist application built with Flutter and Fireb
 
 2. **Copy configuration files**
    ```bash
-   cp .env.sample .env
+   cp config/env/.env.sample config/env/.env
    cp lib/firebase_options.dart.sample lib/firebase_options.dart
    cp android/app/google-services.json.sample android/app/google-services.json
    cp ios/Runner/GoogleService-Info.plist.sample ios/Runner/GoogleService-Info.plist
@@ -57,7 +57,106 @@ A modern, cross-platform todo/checklist application built with Flutter and Fireb
    flutter run
    ```
 
-📚 **For detailed setup instructions, see [SETUP_SECRETS.md](SETUP_SECRETS.md)**
+📚 **For detailed setup instructions, see the Setup section below**
+
+## 🔧 Setup Guide
+
+### Prerequisites
+- Flutter SDK (3.0+)
+- Firebase account
+- Git
+
+### Step 1: Copy Configuration Files
+
+Copy these sample files and rename them:
+
+```bash
+# Environment files
+cp config/env/.env.sample config/env/.env
+cp config/env/.env.dev.sample config/env/.env.dev  
+cp config/env/.env.prod.sample config/env/.env.prod
+
+# Firebase configuration
+cp lib/firebase_options.dart.sample lib/firebase_options.dart
+cp android/app/google-services.json.sample android/app/google-services.json
+cp ios/Runner/GoogleService-Info.plist.sample ios/Runner/GoogleService-Info.plist
+```
+
+### Step 2: Firebase Project Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or select existing
+3. Add your app for each platform:
+   - **Web**: Register with app nickname
+   - **Android**: Package name `com.example.todo_app` 
+   - **iOS**: Bundle ID `com.example.todoApp`
+
+### Step 3: Configure Environment Files
+
+#### Main Environment File (`config/env/.env`)
+```env
+# Required Firebase values
+FIREBASE_API_KEY=AIzaSy...your_actual_key
+FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=123456789
+FIREBASE_APP_ID=1:123456789:web:abc123...
+
+# Optional authentication providers
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+```
+
+#### Firebase Options File (`lib/firebase_options.dart`)
+- Replace placeholder values with your actual Firebase configuration
+- Get values from Firebase Console → Project Settings → General
+
+#### Platform Files
+- **Android**: `android/app/google-services.json` - Download from Firebase Console
+- **iOS**: `ios/Runner/GoogleService-Info.plist` - Download from Firebase Console
+
+### Step 4: Enable Authentication Providers
+
+1. Go to Firebase Console → Authentication
+2. Click "Get started"  
+3. Go to "Sign-in method" tab
+4. Enable these providers:
+   - ✅ **Email/Password**
+   - ✅ **Google** 
+   - ✅ **Phone**
+   - ✅ **GitHub** (requires OAuth app setup)
+
+#### GitHub Setup (Optional)
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Create "New OAuth App"
+3. Set callback URL: `https://your-project.firebaseapp.com/__/auth/handler`
+4. Copy Client ID and Secret to `config/env/.env`
+
+### Step 5: Run the Application
+
+```bash
+# Install dependencies
+flutter pub get
+
+# Run the app
+flutter run
+```
+
+### Troubleshooting
+
+**Missing Files Error**
+- Make sure you copied all sample files
+- Check that files exist: `config/env/.env`, `lib/firebase_options.dart`, etc.
+
+**Authentication Errors**
+- Verify Firebase project has auth providers enabled
+- Check that credentials in `config/env/.env` match Firebase Console
+- For Google Sign-In: Basic functionality works without client IDs
+
+**Build Errors**
+- Ensure `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) are configured
+- Run `flutter clean` and `flutter pub get`
 
 ## 🏗️ Project Structure
 
@@ -78,13 +177,13 @@ lib/
 ## 🔧 Configuration Files
 
 ### Sample Files (Safe for Git)
-- ✅ `.env.sample` - Environment template
+- ✅ `config/env/.env.sample` - Environment template
 - ✅ `lib/firebase_options.dart.sample` - Firebase options template
 - ✅ `android/app/google-services.json.sample` - Android config template
 - ✅ `ios/Runner/GoogleService-Info.plist.sample` - iOS config template
 
 ### Secret Files (Git Ignored)
-- ❌ `.env` - Your actual environment variables
+- ❌ `config/env/.env` - Your actual environment variables
 - ❌ `lib/firebase_options.dart` - Your Firebase configuration
 - ❌ `android/app/google-services.json` - Android Firebase config
 - ❌ `ios/Runner/GoogleService-Info.plist` - iOS Firebase config
@@ -142,12 +241,11 @@ flutter build ios --release
 flutter build web
 ```
 
-## 📚 Documentation
+## 📚 Additional Resources
 
-- 🔐 [Secret Setup Guide](SETUP_SECRETS.md) - Complete configuration instructions
-- 🔥 [Firebase Setup](FIREBASE_SETUP_COMPLETE.md) - Firebase project setup
-- 🔑 [Authentication Guide](AUTHENTICATION_COMPLETE.md) - Authentication configuration
-- 🌍 [Environment Setup](ENVIRONMENT_SETUP.md) - Environment management
+- 🔥 **Firebase**: [Firebase Console](https://console.firebase.google.com/)
+- � **Flutter**: [Flutter Documentation](https://docs.flutter.dev/)
+- 🔐 **FlutterFire**: [Firebase for Flutter](https://firebase.flutter.dev/)
 
 ## 🤝 Contributing
 
@@ -171,7 +269,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Support
 
 If you encounter any issues or have questions:
-1. Check the [Setup Guide](SETUP_SECRETS.md)
+
+1. Check the Setup Guide section above
 2. Search existing GitHub issues
 3. Create a new issue with detailed information
 
