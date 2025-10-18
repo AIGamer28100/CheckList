@@ -1,0 +1,108 @@
+[tool.poetry]
+name = "checklist-api"
+version = "1.0.0"
+description = "RESTful API server for CheckList todo app with FastAPI and Firestore"
+authors = ["CheckList Team <team@checklist.app>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# Web framework
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+
+# Database and storage
+google-cloud-firestore = "^2.13.1"
+firebase-admin = "^6.2.0"
+
+# Authentication and security
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+
+# Data validation and serialization
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+
+# HTTP and utilities
+httpx = "^0.25.2"
+requests = "^2.31.0"
+
+# Configuration and environment
+python-dotenv = "^1.0.0"
+
+# Logging and monitoring
+structlog = "^23.2.0"
+rich = "^13.7.0"
+
+# CORS and middleware
+python-cors = "^1.7.0"
+
+# Date and time utilities
+python-dateutil = "^2.8.2"
+
+# Development and testing dependencies
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+httpx = "^0.25.2"
+black = "^23.11.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+mypy = "^1.7.1"
+pre-commit = "^3.5.0"
+
+[tool.poetry.scripts]
+start = "app.main:start_server"
+dev = "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["app"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "firebase_admin.*",
+    "google.cloud.*",
+]
+ignore_missing_imports = true
