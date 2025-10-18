@@ -7,11 +7,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 /// Handles user authentication operations for multiple providers
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   // Initialize GoogleSignIn without web client ID for now
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email'],
-  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
   /// Get current user
   User? get currentUser => _auth.currentUser;
@@ -115,10 +113,8 @@ class AuthService {
         // For web, use the Google provider directly to avoid client ID issues
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         googleProvider.addScope('email');
-        googleProvider.setCustomParameters({
-          'login_hint': 'user@example.com'
-        });
-        
+        googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+
         return await _auth.signInWithPopup(googleProvider);
       } else {
         // For mobile platforms, use GoogleSignIn
