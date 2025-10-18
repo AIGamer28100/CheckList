@@ -203,58 +203,50 @@ class _TaskListViewState extends ConsumerState<TaskListView> {
       );
     }
 
-    return Column(
-      children: [
-        // Welcome Header & Quick Stats
-        Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: _buildWelcomeHeader(context, viewModel),
-        ),
-
-        // Quick Actions
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          child: _buildQuickActions(context),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Task List
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => viewModel.refresh(),
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: TaskCard(
-                    task: task,
-                    onTap: () => _selectTask(task),
-                    onToggleComplete: () => _toggleTaskComplete(task),
-                    onEdit: () => _editTask(task),
-                    onDelete: () => _deleteTask(task),
-                  ),
-                );
-              },
+    return RefreshIndicator(
+      onRefresh: () => viewModel.refresh(),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        children: [
+          // Welcome Header & Quick Stats
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
+            child: _buildWelcomeHeader(context, viewModel),
           ),
-        ),
-      ],
+
+          const SizedBox(height: 16),
+
+          // Quick Actions
+          _buildQuickActions(context),
+
+          const SizedBox(height: 16),
+
+          // Task List
+          ...tasks.map((task) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: TaskCard(
+                task: task,
+                onTap: () => _selectTask(task),
+                onToggleComplete: () => _toggleTaskComplete(task),
+                onEdit: () => _editTask(task),
+                onDelete: () => _deleteTask(task),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 
