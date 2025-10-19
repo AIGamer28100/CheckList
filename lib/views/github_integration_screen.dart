@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/github_repository.dart';
 import '../services/github_service.dart';
+import '../services/github_sync_manager.dart';
 import '../config/environment_config.dart';
+import '../providers/github_providers.dart';
 
 /// Screen for GitHub integration settings and repository management
 class GitHubIntegrationScreen extends ConsumerStatefulWidget {
@@ -137,6 +139,58 @@ class _GitHubIntegrationScreenState
     }
   }
 
+  Future<void> _performSync() async {
+    if (_settings.selectedRepositories == null || 
+        _settings.selectedRepositories!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select at least one repository'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final syncManager = ref.read(githubSyncManagerProvider);
+      final result = await syncManager.performSync(
+        _settings.selectedRepositories!,
+        bidirectional: _settings.bidirectionalSync,
+        userId: 'current_user', // TODO: Get from auth provider
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.success 
+                  ? 'Sync completed: ${result.message}'
+                  : 'Sync failed: ${result.message}',
+            ),
+            backgroundColor: result.success ? Colors.green : Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sync error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -145,12 +199,40 @@ class _GitHubIntegrationScreenState
       appBar: AppBar(
         title: const Text('GitHub Integration'),
         actions: [
-          if (_isConnected)
+          if (_isConnected) ...[
+            Consumer(
+              builder: (context, ref, _) {
+                final syncStatus = ref.watch(syncStatusStreamProvider);
+                return syncStatus.when(
+                  data: (status) => IconButton(
+                    icon: status == SyncStatus.syncing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.sync),
+                    onPressed: status == SyncStatus.syncing ? null : _performSync,
+                    tooltip: 'Sync Now',
+                  ),
+                  loading: () => const IconButton(
+                    icon: Icon(Icons.sync),
+                    onPressed: null,
+                  ),
+                  error: (_, __) => IconButton(
+                    icon: const Icon(Icons.sync_problem),
+                    onPressed: _performSync,
+                    tooltip: 'Sync (Last sync failed)',
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.save),
               onPressed: _saveSettings,
               tooltip: 'Save Settings',
             ),
+          ],
         ],
       ),
       body: _buildBody(theme),
@@ -259,6 +341,8 @@ class _GitHubIntegrationScreenState
         children: [
           _buildAccountCard(theme),
           const SizedBox(height: 16),
+          _buildSyncStatusCard(theme),
+          const SizedBox(height: 16),
           _buildSyncSettings(theme),
           const SizedBox(height: 16),
           _buildRepositoriesList(theme),
@@ -314,6 +398,114 @@ class _GitHubIntegrationScreenState
         ),
       ),
     );
+  }
+
+  Widget _buildSyncStatusCard(ThemeData theme) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final syncStatus = ref.watch(syncStatusStreamProvider);
+        final lastSyncTime = ref.watch(lastSyncTimeProvider);
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.sync_alt, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text('Sync Status', style: theme.textTheme.titleMedium),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                syncStatus.when(
+                  data: (status) {
+                    IconData icon;
+                    Color color;
+                    String text;
+
+                    switch (status) {
+                      case SyncStatus.idle:
+                        icon = Icons.check_circle;
+                        color = Colors.grey;
+                        text = 'Ready to sync';
+                        break;
+                      case SyncStatus.syncing:
+                        icon = Icons.sync;
+                        color = theme.colorScheme.primary;
+                        text = 'Syncing...';
+                        break;
+                      case SyncStatus.completed:
+                        icon = Icons.check_circle;
+                        color = Colors.green;
+                        text = 'Sync completed';
+                        break;
+                      case SyncStatus.failed:
+                        icon = Icons.error;
+                        color = Colors.red;
+                        text = 'Sync failed';
+                        break;
+                    }
+
+                    return Row(
+                      children: [
+                        Icon(icon, color: color, size: 20),
+                        const SizedBox(width: 8),
+                        Text(text, style: TextStyle(color: color)),
+                      ],
+                    );
+                  },
+                  loading: () => Row(
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('Loading...', style: theme.textTheme.bodyMedium),
+                    ],
+                  ),
+                  error: (_, __) => Row(
+                    children: [
+                      const Icon(Icons.error, color: Colors.red, size: 20),
+                      const SizedBox(width: 8),
+                      Text('Error loading status', style: theme.textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+                if (lastSyncTime != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Last synced: ${_formatLastSync(lastSyncTime)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatLastSync(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes} minutes ago';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours} hours ago';
+    } else {
+      return '${difference.inDays} days ago';
+    }
   }
 
   Widget _buildSyncSettings(ThemeData theme) {
