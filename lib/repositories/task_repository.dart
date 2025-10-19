@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import '../models/task.dart';
 import '../utils/database_helper.dart';
@@ -18,7 +19,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'createdAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   @override
@@ -32,13 +33,13 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
     );
 
     if (maps.isEmpty) return null;
-    return Task.fromJson(maps.first);
+    return Task.fromJson(_mapToTask(maps.first));
   }
 
   @override
   Future<Task> create(Task task) async {
     final db = await _databaseHelper.database;
-    final taskMap = task.toJson();
+    final taskMap = _taskToMap(task);
 
     await db.insert(
       tableName,
@@ -52,7 +53,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
   @override
   Future<Task> update(Task task) async {
     final db = await _databaseHelper.database;
-    final taskMap = task.toJson();
+    final taskMap = _taskToMap(task);
 
     await db.update(tableName, taskMap, where: 'id = ?', whereArgs: [task.id]);
 
@@ -106,7 +107,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'createdAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   @override
@@ -127,7 +128,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       offset: offset,
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   @override
@@ -149,7 +150,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'createdAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   @override
@@ -292,7 +293,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'dueDate ASC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   /// Get tasks due today
@@ -320,7 +321,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'dueDate ASC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   /// Get completed tasks
@@ -338,7 +339,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'reminderDateTime ASC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   /// Get tasks by date range
@@ -355,7 +356,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'createdAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   /// Get recent tasks (last 7 days)
@@ -374,7 +375,7 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'updatedAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
   }
 
   /// Get tasks with calendar events
@@ -387,6 +388,107 @@ class TaskRepository implements WorkspaceScopedRepository<Task, String> {
       orderBy: 'updatedAt DESC',
     );
 
-    return maps.map((map) => Task.fromJson(map)).toList();
+    return maps.map((map) => Task.fromJson(_mapToTask(map))).toList();
+  }
+
+  /// Convert a Task object to a Map for database operations
+  /// This handles the conversion of list fields to JSON strings and booleans to integers
+  Map<String, dynamic> _taskToMap(Task task) {
+    final json = task.toJson();
+
+    // Convert list fields to JSON strings for SQLite storage
+    if (json['tags'] != null) {
+      json['tags'] = jsonEncode(List<String>.from(task.tags));
+    }
+    if (json['attachments'] != null) {
+      json['attachments'] = jsonEncode(List<String>.from(task.attachments));
+    }
+    if (json['subtasks'] != null) {
+      json['subtasks'] = jsonEncode(
+        task.subtasks.map((subtask) => subtask.toJson()).toList(),
+      );
+    }
+    if (json['metadata'] != null) {
+      json['metadata'] = jsonEncode(Map<String, dynamic>.from(task.metadata));
+    }
+
+    // Convert boolean fields to integers (SQLite requirement)
+    if (json['isRecurring'] != null) {
+      json['isRecurring'] = json['isRecurring'] == true ? 1 : 0;
+    }
+
+    // Ensure all DateTime fields are properly converted to ISO strings
+    if (json['dueDate'] != null && json['dueDate'] is DateTime) {
+      json['dueDate'] = (json['dueDate'] as DateTime).toIso8601String();
+    }
+    if (json['reminderTime'] != null && json['reminderTime'] is DateTime) {
+      json['reminderTime'] = (json['reminderTime'] as DateTime)
+          .toIso8601String();
+    }
+    if (json['createdAt'] != null && json['createdAt'] is DateTime) {
+      json['createdAt'] = (json['createdAt'] as DateTime).toIso8601String();
+    }
+    if (json['updatedAt'] != null && json['updatedAt'] is DateTime) {
+      json['updatedAt'] = (json['updatedAt'] as DateTime).toIso8601String();
+    }
+    if (json['completedAt'] != null && json['completedAt'] is DateTime) {
+      json['completedAt'] = (json['completedAt'] as DateTime).toIso8601String();
+    }
+
+    return json;
+  }
+
+  /// Convert a database Map to proper format for Task.fromJson()
+  /// This handles the decoding of JSON strings back to lists/maps and integers to booleans
+  Map<String, dynamic> _mapToTask(Map<String, dynamic> map) {
+    final result = Map<String, dynamic>.from(map);
+
+    // Decode JSON strings back to lists/maps
+    if (result['tags'] is String && result['tags'].isNotEmpty) {
+      try {
+        result['tags'] = jsonDecode(result['tags']);
+      } catch (e) {
+        result['tags'] = <String>[];
+      }
+    } else {
+      result['tags'] = <String>[];
+    }
+
+    if (result['attachments'] is String && result['attachments'].isNotEmpty) {
+      try {
+        result['attachments'] = jsonDecode(result['attachments']);
+      } catch (e) {
+        result['attachments'] = <String>[];
+      }
+    } else {
+      result['attachments'] = <String>[];
+    }
+
+    if (result['subtasks'] is String && result['subtasks'].isNotEmpty) {
+      try {
+        result['subtasks'] = jsonDecode(result['subtasks']);
+      } catch (e) {
+        result['subtasks'] = <Map<String, dynamic>>[];
+      }
+    } else {
+      result['subtasks'] = <Map<String, dynamic>>[];
+    }
+
+    if (result['metadata'] is String && result['metadata'].isNotEmpty) {
+      try {
+        result['metadata'] = jsonDecode(result['metadata']);
+      } catch (e) {
+        result['metadata'] = <String, dynamic>{};
+      }
+    } else {
+      result['metadata'] = <String, dynamic>{};
+    }
+
+    // Convert integer fields back to booleans
+    if (result['isRecurring'] is int) {
+      result['isRecurring'] = result['isRecurring'] == 1;
+    }
+
+    return result;
   }
 }

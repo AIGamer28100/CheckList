@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:home_widget/home_widget.dart';
 import 'dart:io';
 import 'firebase_options.dart';
 import 'config/environment_config.dart';
 import 'themes/theme_provider.dart';
 import 'views/task_list_view.dart';
+import 'services/widget_service.dart';
+import 'services/desktop_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -21,13 +24,36 @@ void main() async {
   // Initialize environment configuration
   await EnvironmentConfig.initialize();
 
-  // Initialize Firebase (skip on platforms not configured)
+  // Initialize home screen widgets
+  if (Platform.isAndroid || Platform.isIOS) {
+    HomeWidget.registerInteractivityCallback(WidgetService.backgroundCallback);
+    await WidgetService().updateWidgets();
+  }
+
+  // Initialize desktop features
+  if (DesktopService.isDesktop) {
+    await DesktopService().initialize();
+  }
+
+  // Initialize Firebase (platform-specific handling)
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (Platform.isLinux || Platform.isWindows) {
+      // For Linux and Windows, Firebase web SDK should be used
+      // This requires firebase_core_web but may have limitations
+      debugPrint(
+        'Platform: ${Platform.operatingSystem} - Using local storage for optimal performance',
+      );
+    } else {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      debugPrint(
+        'Firebase initialized successfully for ${Platform.operatingSystem}',
+      );
+    }
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
+    debugPrint('Continuing with local storage only...');
     // Continue without Firebase for now
   }
 

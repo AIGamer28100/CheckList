@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -364,16 +363,6 @@ class AuthService {
       await currentUser!.reload();
     } catch (e) {
       debugPrint('Update profile error: $e');
-      rethrow;
-    }
-  }
-
-  /// Get user's sign-in methods
-  Future<List<String>> getSignInMethods(String email) async {
-    try {
-      return await _auth.fetchSignInMethodsForEmail(email);
-    } catch (e) {
-      debugPrint('Get sign-in methods error: $e');
       rethrow;
     }
   }

@@ -223,15 +223,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     description: descriptionController.text.trim(),
                     userId: _authService.userId!,
                   );
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
                 } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error adding todo: $e')),
-                    );
-                  }
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error adding todo: $e')),
+                  );
                 }
               }
             },

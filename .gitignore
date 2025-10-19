@@ -45,12 +45,11 @@ app.*.map.json
 /android/app/release
 
 # Environment files containing secrets
-config/env/.env
-config/env/.env.local
-config/env/.env.dev
-config/env/.env.prod
-config/env/.env.staging
-config/env/.env.test
+.env
+.env.local
+.env.*.local
+config/env/
+api_server/.env
 
 # Firebase configuration files (containing secrets)
 /lib/firebase_options.dart

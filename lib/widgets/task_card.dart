@@ -84,7 +84,7 @@ class TaskCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getPriorityColor(task.priority).withOpacity(0.1),
+                      color: _getPriorityColor(task.priority).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _getPriorityColor(task.priority),
@@ -158,8 +158,8 @@ class TaskCard extends StatelessWidget {
                             tag,
                             style: const TextStyle(fontSize: 12),
                           ),
-                          backgroundColor: Colors.blue.withOpacity(0.1),
-                          side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+                          backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                          side: BorderSide(color: Colors.blue.withValues(alpha: 0.3)),
                         ),
                       )
                       .toList(),
@@ -221,7 +221,7 @@ class TaskCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(task.status).withOpacity(0.1),
+                      color: _getStatusColor(task.status).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
