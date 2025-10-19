@@ -93,6 +93,9 @@ dependencies:
   launch_at_startup: ^0.3.1
   local_notifier: ^0.1.6
 
+  # GitHub integration
+  github: ^9.24.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -126,9 +129,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - config/env/.env
-    - config/env/.env.dev
-    - config/env/.env.prod
+    - .env
     - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see

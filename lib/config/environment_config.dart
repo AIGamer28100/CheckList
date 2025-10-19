@@ -58,6 +58,7 @@ class EnvironmentConfig {
   static String get googleClientIdAndroid => get('GOOGLE_CLIENT_ID_ANDROID');
   static String get githubClientId => get('GITHUB_CLIENT_ID');
   static String get githubClientSecret => get('GITHUB_CLIENT_SECRET');
+  static String? get githubToken => maybeGet('GITHUB_TOKEN');
 
   // Other API Keys
   static String get googleMapsApiKey => get('GOOGLE_MAPS_API_KEY');

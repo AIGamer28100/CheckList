@@ -10,6 +10,7 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
   id: json['id'] as String,
   title: json['title'] as String,
   description: json['description'] as String?,
+  userId: json['userId'] as String?,
   status:
       $enumDecodeNullable(_$TaskStatusEnumMap, json['status']) ??
       TaskStatus.todo,
@@ -29,6 +30,9 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
   githubIssueUrl: json['githubIssueUrl'] as String?,
   githubRepoId: json['githubRepoId'] as String?,
   calendarEventId: json['calendarEventId'] as String?,
+  externalSource: json['externalSource'] as String?,
+  externalId: json['externalId'] as String?,
+  externalUrl: json['externalUrl'] as String?,
   attachments:
       (json['attachments'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -61,6 +65,7 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
+      'userId': instance.userId,
       'status': _$TaskStatusEnumMap[instance.status]!,
       'priority': _$TaskPriorityEnumMap[instance.priority]!,
       'dueDate': instance.dueDate?.toIso8601String(),
@@ -70,6 +75,9 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'githubIssueUrl': instance.githubIssueUrl,
       'githubRepoId': instance.githubRepoId,
       'calendarEventId': instance.calendarEventId,
+      'externalSource': instance.externalSource,
+      'externalId': instance.externalId,
+      'externalUrl': instance.externalUrl,
       'attachments': instance.attachments,
       'subtasks': instance.subtasks,
       'parentTaskId': instance.parentTaskId,

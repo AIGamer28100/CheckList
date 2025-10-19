@@ -24,6 +24,8 @@ mixin _$Task {
   String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  String? get userId =>
+      throw _privateConstructorUsedError; // User ID for multi-user support
   TaskStatus get status => throw _privateConstructorUsedError;
   TaskPriority get priority => throw _privateConstructorUsedError;
   DateTime? get dueDate => throw _privateConstructorUsedError;
@@ -33,6 +35,12 @@ mixin _$Task {
   String? get githubIssueUrl => throw _privateConstructorUsedError;
   String? get githubRepoId => throw _privateConstructorUsedError;
   String? get calendarEventId => throw _privateConstructorUsedError;
+  String? get externalSource =>
+      throw _privateConstructorUsedError; // e.g., 'github', 'calendar'
+  String? get externalId =>
+      throw _privateConstructorUsedError; // External reference ID
+  String? get externalUrl =>
+      throw _privateConstructorUsedError; // Direct link to external resource
   List<String> get attachments => throw _privateConstructorUsedError;
   List<Task> get subtasks => throw _privateConstructorUsedError;
   String? get parentTaskId => throw _privateConstructorUsedError;
@@ -65,6 +73,7 @@ abstract class $TaskCopyWith<$Res> {
     String id,
     String title,
     String? description,
+    String? userId,
     TaskStatus status,
     TaskPriority priority,
     DateTime? dueDate,
@@ -74,6 +83,9 @@ abstract class $TaskCopyWith<$Res> {
     String? githubIssueUrl,
     String? githubRepoId,
     String? calendarEventId,
+    String? externalSource,
+    String? externalId,
+    String? externalUrl,
     List<String> attachments,
     List<Task> subtasks,
     String? parentTaskId,
@@ -108,6 +120,7 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? userId = freezed,
     Object? status = null,
     Object? priority = null,
     Object? dueDate = freezed,
@@ -117,6 +130,9 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? githubIssueUrl = freezed,
     Object? githubRepoId = freezed,
     Object? calendarEventId = freezed,
+    Object? externalSource = freezed,
+    Object? externalId = freezed,
+    Object? externalUrl = freezed,
     Object? attachments = null,
     Object? subtasks = null,
     Object? parentTaskId = freezed,
@@ -144,6 +160,10 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
             description: freezed == description
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            userId: freezed == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String?,
             status: null == status
                 ? _value.status
@@ -180,6 +200,18 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
             calendarEventId: freezed == calendarEventId
                 ? _value.calendarEventId
                 : calendarEventId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            externalSource: freezed == externalSource
+                ? _value.externalSource
+                : externalSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            externalId: freezed == externalId
+                ? _value.externalId
+                : externalId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            externalUrl: freezed == externalUrl
+                ? _value.externalUrl
+                : externalUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             attachments: null == attachments
                 ? _value.attachments
@@ -251,6 +283,7 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
     String id,
     String title,
     String? description,
+    String? userId,
     TaskStatus status,
     TaskPriority priority,
     DateTime? dueDate,
@@ -260,6 +293,9 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
     String? githubIssueUrl,
     String? githubRepoId,
     String? calendarEventId,
+    String? externalSource,
+    String? externalId,
+    String? externalUrl,
     List<String> attachments,
     List<Task> subtasks,
     String? parentTaskId,
@@ -291,6 +327,7 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? userId = freezed,
     Object? status = null,
     Object? priority = null,
     Object? dueDate = freezed,
@@ -300,6 +337,9 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? githubIssueUrl = freezed,
     Object? githubRepoId = freezed,
     Object? calendarEventId = freezed,
+    Object? externalSource = freezed,
+    Object? externalId = freezed,
+    Object? externalUrl = freezed,
     Object? attachments = null,
     Object? subtasks = null,
     Object? parentTaskId = freezed,
@@ -327,6 +367,10 @@ class __$$TaskImplCopyWithImpl<$Res>
         description: freezed == description
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        userId: freezed == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String?,
         status: null == status
             ? _value.status
@@ -363,6 +407,18 @@ class __$$TaskImplCopyWithImpl<$Res>
         calendarEventId: freezed == calendarEventId
             ? _value.calendarEventId
             : calendarEventId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        externalSource: freezed == externalSource
+            ? _value.externalSource
+            : externalSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        externalId: freezed == externalId
+            ? _value.externalId
+            : externalId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        externalUrl: freezed == externalUrl
+            ? _value.externalUrl
+            : externalUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         attachments: null == attachments
             ? _value._attachments
@@ -428,6 +484,7 @@ class _$TaskImpl implements _Task {
     required this.id,
     required this.title,
     this.description,
+    this.userId,
     this.status = TaskStatus.todo,
     this.priority = TaskPriority.medium,
     this.dueDate,
@@ -437,6 +494,9 @@ class _$TaskImpl implements _Task {
     this.githubIssueUrl,
     this.githubRepoId,
     this.calendarEventId,
+    this.externalSource,
+    this.externalId,
+    this.externalUrl,
     final List<String> attachments = const [],
     final List<Task> subtasks = const [],
     this.parentTaskId,
@@ -465,6 +525,9 @@ class _$TaskImpl implements _Task {
   @override
   final String? description;
   @override
+  final String? userId;
+  // User ID for multi-user support
+  @override
   @JsonKey()
   final TaskStatus status;
   @override
@@ -491,7 +554,17 @@ class _$TaskImpl implements _Task {
   final String? githubRepoId;
   @override
   final String? calendarEventId;
+  @override
+  final String? externalSource;
+  // e.g., 'github', 'calendar'
+  @override
+  final String? externalId;
+  // External reference ID
+  @override
+  final String? externalUrl;
+  // Direct link to external resource
   final List<String> _attachments;
+  // Direct link to external resource
   @override
   @JsonKey()
   List<String> get attachments {
@@ -542,7 +615,7 @@ class _$TaskImpl implements _Task {
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, status: $status, priority: $priority, dueDate: $dueDate, reminderTime: $reminderTime, tags: $tags, location: $location, githubIssueUrl: $githubIssueUrl, githubRepoId: $githubRepoId, calendarEventId: $calendarEventId, attachments: $attachments, subtasks: $subtasks, parentTaskId: $parentTaskId, isRecurring: $isRecurring, recurrencePattern: $recurrencePattern, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, completionPercentage: $completionPercentage, createdBy: $createdBy, createdAt: $createdAt, updatedAt: $updatedAt, completedAt: $completedAt, metadata: $metadata)';
+    return 'Task(id: $id, title: $title, description: $description, userId: $userId, status: $status, priority: $priority, dueDate: $dueDate, reminderTime: $reminderTime, tags: $tags, location: $location, githubIssueUrl: $githubIssueUrl, githubRepoId: $githubRepoId, calendarEventId: $calendarEventId, externalSource: $externalSource, externalId: $externalId, externalUrl: $externalUrl, attachments: $attachments, subtasks: $subtasks, parentTaskId: $parentTaskId, isRecurring: $isRecurring, recurrencePattern: $recurrencePattern, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, completionPercentage: $completionPercentage, createdBy: $createdBy, createdAt: $createdAt, updatedAt: $updatedAt, completedAt: $completedAt, metadata: $metadata)';
   }
 
   @override
@@ -554,6 +627,7 @@ class _$TaskImpl implements _Task {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
@@ -569,6 +643,12 @@ class _$TaskImpl implements _Task {
                 other.githubRepoId == githubRepoId) &&
             (identical(other.calendarEventId, calendarEventId) ||
                 other.calendarEventId == calendarEventId) &&
+            (identical(other.externalSource, externalSource) ||
+                other.externalSource == externalSource) &&
+            (identical(other.externalId, externalId) ||
+                other.externalId == externalId) &&
+            (identical(other.externalUrl, externalUrl) ||
+                other.externalUrl == externalUrl) &&
             const DeepCollectionEquality().equals(
               other._attachments,
               _attachments,
@@ -604,6 +684,7 @@ class _$TaskImpl implements _Task {
     id,
     title,
     description,
+    userId,
     status,
     priority,
     dueDate,
@@ -613,6 +694,9 @@ class _$TaskImpl implements _Task {
     githubIssueUrl,
     githubRepoId,
     calendarEventId,
+    externalSource,
+    externalId,
+    externalUrl,
     const DeepCollectionEquality().hash(_attachments),
     const DeepCollectionEquality().hash(_subtasks),
     parentTaskId,
@@ -647,6 +731,7 @@ abstract class _Task implements Task {
     required final String id,
     required final String title,
     final String? description,
+    final String? userId,
     final TaskStatus status,
     final TaskPriority priority,
     final DateTime? dueDate,
@@ -656,6 +741,9 @@ abstract class _Task implements Task {
     final String? githubIssueUrl,
     final String? githubRepoId,
     final String? calendarEventId,
+    final String? externalSource,
+    final String? externalId,
+    final String? externalUrl,
     final List<String> attachments,
     final List<Task> subtasks,
     final String? parentTaskId,
@@ -680,6 +768,8 @@ abstract class _Task implements Task {
   @override
   String? get description;
   @override
+  String? get userId; // User ID for multi-user support
+  @override
   TaskStatus get status;
   @override
   TaskPriority get priority;
@@ -697,6 +787,12 @@ abstract class _Task implements Task {
   String? get githubRepoId;
   @override
   String? get calendarEventId;
+  @override
+  String? get externalSource; // e.g., 'github', 'calendar'
+  @override
+  String? get externalId; // External reference ID
+  @override
+  String? get externalUrl; // Direct link to external resource
   @override
   List<String> get attachments;
   @override
