@@ -4,10 +4,16 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
+  dynamic_color
   firebase_auth
   firebase_core
   firebase_storage
+  local_notifier
+  screen_retriever_windows
+  sqlite3_flutter_libs
+  system_tray
   url_launcher_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=CheckList
+Comment=Advanced Todo and Task Management App
+Exec=checklist
+Icon=checklist
+Terminal=false
+Type=Application
+Categories=Office;Productivity;
+StartupNotify=true
+StartupWMClass=checklist
+Keywords=todo;task;productivity;checklist;reminder;

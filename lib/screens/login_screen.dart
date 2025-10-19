@@ -218,7 +218,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: const Text('Email'),
                     style: TextButton.styleFrom(
                       backgroundColor: !_showPhoneAuth
-                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                          ? Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1)
                           : null,
                     ),
                   ),
@@ -234,7 +236,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: const Text('Phone'),
                     style: TextButton.styleFrom(
                       backgroundColor: _showPhoneAuth
-                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                          ? Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1)
                           : null,
                     ),
                   ),
@@ -434,20 +438,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   await _authService.sendPasswordResetEmail(
                     email: emailController.text.trim(),
                   );
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Password reset email sent!'),
-                      ),
-                    );
-                  }
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Password reset email sent!')),
+                  );
                 } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
                 }
               }
             },

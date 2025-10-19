@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "todo_app")
+set(BINARY_NAME "checklist")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.todo_app")
+set(APPLICATION_ID "com.aigamer.checklist")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -121,8 +121,19 @@ install(CODE "
 install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
 
+# Ensure the icon is copied for Linux window manager
+install(CODE "
+  file(MAKE_DIRECTORY \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons\")
+  file(COPY \"${CMAKE_CURRENT_SOURCE_DIR}/../assets/icons/icon-512.png\"
+       DESTINATION \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons/\")
+  " COMPONENT Runtime)
+
 # Install the AOT library on non-Debug builds only.
 if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Install desktop file for proper Linux integration
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/com.aigamer.checklist.desktop"
+  DESTINATION "share/applications" COMPONENT Runtime)

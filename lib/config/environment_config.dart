@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 /// Environment configuration service
 /// Handles loading and accessing environment variables
@@ -13,14 +14,14 @@ class EnvironmentConfig {
     // Try to load environment-specific file first
     try {
       await dotenv.load(fileName: environmentFile);
-      print('Loaded environment from: $environmentFile');
+      debugPrint('Loaded environment from: $environmentFile');
     } catch (e) {
       // Fallback to default .env file
       try {
         await dotenv.load(fileName: _defaultEnvFile);
-        print('Loaded environment from: $_defaultEnvFile');
+        debugPrint('Loaded environment from: $_defaultEnvFile');
       } catch (e) {
-        print(
+        debugPrint(
           'Warning: Could not load environment file. Using default values.',
         );
       }
@@ -78,11 +79,11 @@ class EnvironmentConfig {
   /// Print current environment info (for debugging)
   static void debugPrintEnvironment() {
     if (isDebugMode) {
-      print('=== Environment Configuration ===');
-      print('Environment: $appEnv');
-      print('Debug Mode: $isDebugMode');
-      print('Firebase Project ID: $firebaseProjectId');
-      print('=================================');
+      debugPrint('=== Environment Configuration ===');
+      debugPrint('Environment: $appEnv');
+      debugPrint('Debug Mode: $isDebugMode');
+      debugPrint('Firebase Project ID: $firebaseProjectId');
+      debugPrint('=================================');
     }
   }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CheckList</string>
+    <string name="widget_small_description">Quick task overview</string>
+    <string name="widget_medium_description">Task list with upcoming items</string>
+    <string name="widget_large_description">Full task manager with progress</string>
+</resources>
