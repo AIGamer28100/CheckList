@@ -3,7 +3,7 @@ name = "api-server"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Hariharan",email = "hariharankvasn@gmail.com"}
+    {name = "Hariharan", email = "hariharankvasn@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
