@@ -21,8 +21,9 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
+    // Use application support directory (secure, in app folder)
+    Directory appSupportDirectory = await getApplicationSupportDirectory();
+    String path = join(appSupportDirectory.path, _databaseName);
 
     return await openDatabase(
       path,
