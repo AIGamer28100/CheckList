@@ -34,6 +34,7 @@ class Task with _$Task {
     required String id,
     required String title,
     String? description,
+    String? userId, // User ID for multi-user support
     @Default(TaskStatus.todo) TaskStatus status,
     @Default(TaskPriority.medium) TaskPriority priority,
     DateTime? dueDate,
@@ -43,6 +44,9 @@ class Task with _$Task {
     String? githubIssueUrl,
     String? githubRepoId,
     String? calendarEventId,
+    String? externalSource, // e.g., 'github', 'calendar'
+    String? externalId, // External reference ID
+    String? externalUrl, // Direct link to external resource
     @Default([]) List<String> attachments,
     @Default([]) List<Task> subtasks,
     String? parentTaskId,

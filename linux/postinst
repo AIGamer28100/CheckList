@@ -1,0 +1,12 @@
+#!/bin/bash
+# Post-installation script for CheckList
+
+# Create symlink to desktop file in system applications directory
+ln -sf /opt/checklist/share/applications/com.aigamer.checklist.desktop /usr/share/applications/com.aigamer.checklist.desktop
+
+# Update desktop database
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database /usr/share/applications
+fi
+
+exit 0

@@ -14,17 +14,15 @@ class TodoWidgetProvider : AppWidgetProvider() {
     ) {
         appWidgetIds.forEach { appWidgetId ->
             val widgetData = HomeWidgetPlugin.getData(context)
-            val views: RemoteViews = when {
-                else -> RemoteViews(context.packageName, es.antonborri.home_widget.R.layout.widget_layout).apply {
-                    // Get data from SharedPreferences
-                    val totalTasks = widgetData.getInt("total_tasks", 0)
-                    val completedTasks = widgetData.getInt("completed_tasks", 0)
-                    val pendingTasks = widgetData.getInt("pending_tasks", 0)
-                    val todayTasks = widgetData.getInt("today_tasks", 0)
-                    val overdueTasks = widgetData.getInt("overdue_tasks", 0)
-                    
-                    // Update the widget (home_widget plugin handles this automatically)
-                }
+            val views = RemoteViews(context.packageName, R.layout.widget_layout).apply {
+                // Get data from SharedPreferences
+                val totalTasks = widgetData.getInt("total_tasks", 0)
+                val completedTasks = widgetData.getInt("completed_tasks", 0)
+                val pendingTasks = widgetData.getInt("pending_tasks", 0)
+                val todayTasks = widgetData.getInt("today_tasks", 0)
+                val overdueTasks = widgetData.getInt("overdue_tasks", 0)
+                
+                // Update the widget (home_widget plugin handles this automatically)
             }
             
             appWidgetManager.updateAppWidget(appWidgetId, views)

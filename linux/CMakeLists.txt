@@ -41,7 +41,9 @@ endif()
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
-  target_compile_options(${TARGET} PRIVATE -Wall -Werror)
+  # Avoid treating warnings as errors because third-party plugin headers (for
+  # example flutter_secure_storage) may emit warnings on some toolchains.
+  target_compile_options(${TARGET} PRIVATE -Wall)
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
@@ -79,19 +81,18 @@ include(flutter/generated_plugins.cmake)
 # By default, "installing" just makes a relocatable bundle in the build
 # directory.
 set(BUILD_BUNDLE_DIR "${PROJECT_BINARY_DIR}/bundle")
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
-endif()
+set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
 
 # Start with a clean build bundle directory every time.
 install(CODE "
   file(REMOVE_RECURSE \"${BUILD_BUNDLE_DIR}/\")
   " COMPONENT Runtime)
 
-set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
-set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INSTALL_BUNDLE_BIN_DIR ".")
+set(INSTALL_BUNDLE_DATA_DIR "data")
+set(INSTALL_BUNDLE_LIB_DIR "lib")
 
-install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${INSTALL_BUNDLE_BIN_DIR}"
   COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
@@ -116,16 +117,16 @@ install(DIRECTORY "${NATIVE_ASSETS_DIR}"
 # from a previous install.
 set(FLUTTER_ASSET_DIR_NAME "flutter_assets")
 install(CODE "
-  file(REMOVE_RECURSE \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
+  file(REMOVE_RECURSE \"${CMAKE_INSTALL_PREFIX}/${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
   " COMPONENT Runtime)
 install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
 
 # Ensure the icon is copied for Linux window manager
 install(CODE "
-  file(MAKE_DIRECTORY \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons\")
+  file(MAKE_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons\")
   file(COPY \"${CMAKE_CURRENT_SOURCE_DIR}/../assets/icons/icon-512.png\"
-       DESTINATION \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons/\")
+       DESTINATION \"${CMAKE_INSTALL_PREFIX}/${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}/assets/icons/\")
   " COMPONENT Runtime)
 
 # Install the AOT library on non-Debug builds only.
@@ -137,3 +138,30 @@ endif()
 # Install desktop file for proper Linux integration
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/com.aigamer.checklist.desktop"
   DESTINATION "share/applications" COMPONENT Runtime)
+
+# === Packaging configuration ===
+# Configure CPack so that calling the "package" target produces a .deb that
+# declares the runtime packages required by the application.
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME "${BINARY_NAME}")
+set(CPACK_PACKAGE_VENDOR "CheckList")
+set(CPACK_PACKAGE_CONTACT "CheckList maintainers")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CheckList - advanced todo and task manager")
+# Keep this version in sync with pubspec.yaml unless an explicit build override is used.
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+# Ensure libsecret is available on the target machine; the -dev package remains
+# listed so that developers installing the .deb have the headers required for
+# plugin features that depend on libsecret.
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsecret-1-0, libsecret-1-dev")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
+
+# For system-wide installation via .deb, override paths to use /opt
+set(CPACK_SET_DESTDIR ON)
+set(CPACK_INSTALL_PREFIX "/opt/${BINARY_NAME}")
+
+# Add maintainer scripts to handle desktop file symlink
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst;${CMAKE_CURRENT_SOURCE_DIR}/prerm")
+
+include(CPack)

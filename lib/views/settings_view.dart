@@ -1,11 +1,12 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
 import '../themes/theme_provider.dart';
-import 'widget_management_screen.dart';
-import 'desktop_settings_screen.dart';
-import 'account_linking_screen.dart';
 import '../services/desktop_service.dart';
+import 'account_linking_screen.dart';
+import 'desktop_settings_screen.dart';
+import 'github_integration_screen.dart';
+import 'widget_management_screen.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
@@ -42,6 +43,37 @@ class SettingsView extends ConsumerWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AccountLinkingScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Integrations Section
+          Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'Integrations',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.code),
+                  title: const Text('GitHub'),
+                  subtitle: const Text('Import tasks from Issues and PRs'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const GitHubIntegrationScreen(),
                       ),
                     );
                   },

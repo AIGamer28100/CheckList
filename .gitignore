@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Distribution files (preserved during flutter clean)
+/dist/
+
 # Symbolication related
 app.*.symbols
 
@@ -48,7 +51,6 @@ app.*.map.json
 .env
 .env.local
 .env.*.local
-config/env/
 api_server/.env
 
 # Firebase configuration files (containing secrets)
