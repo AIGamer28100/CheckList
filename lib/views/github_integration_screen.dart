@@ -162,8 +162,9 @@ class _GitHubIntegrationScreenState
     try {
       // Save selected repositories to secure storage
       if (_settings.selectedRepositories != null) {
-        await _secureStorage
-            .saveGitHubSelectedRepos(_settings.selectedRepositories!);
+        await _secureStorage.saveGitHubSelectedRepos(
+          _settings.selectedRepositories!,
+        );
       }
 
       if (mounted) {
