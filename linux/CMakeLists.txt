@@ -157,4 +157,8 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsecret-1-0, libsecret-1-dev")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
+# For system-wide installation via .deb, override paths to use /opt
+set(CPACK_SET_DESTDIR ON)
+set(CPACK_INSTALL_PREFIX "/opt/${BINARY_NAME}")
+
 include(CPack)
