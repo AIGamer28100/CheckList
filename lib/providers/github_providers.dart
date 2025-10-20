@@ -13,7 +13,7 @@ final githubServiceProvider = Provider<GitHubService>((ref) {
 final githubSyncManagerProvider = Provider<GitHubSyncManager>((ref) {
   final githubService = ref.watch(githubServiceProvider);
   final taskRepository = TaskRepository(DatabaseHelper());
-  
+
   return GitHubSyncManager(
     githubService: githubService,
     taskRepository: taskRepository,

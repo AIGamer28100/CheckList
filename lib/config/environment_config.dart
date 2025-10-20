@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 /// Environment configuration service
 /// Handles loading and accessing environment variables
 class EnvironmentConfig {
-  static const String _defaultEnvFile = 'config/env/.env';
+  static const String _defaultEnvFile = '.env';
+  static bool _isInitialized = false;
 
   /// Initialize the environment configuration
   /// Load the appropriate .env file based on the environment
@@ -14,33 +15,52 @@ class EnvironmentConfig {
     // Try to load environment-specific file first
     try {
       await dotenv.load(fileName: environmentFile);
+      _isInitialized = true;
       debugPrint('Loaded environment from: $environmentFile');
     } catch (e) {
       // Fallback to default .env file
       try {
         await dotenv.load(fileName: _defaultEnvFile);
+        _isInitialized = true;
         debugPrint('Loaded environment from: $_defaultEnvFile');
       } catch (e) {
+        // If no env file exists, mark as initialized with empty env
         debugPrint(
           'Warning: Could not load environment file. Using default values.',
         );
+        _isInitialized = true;
       }
     }
   }
 
   /// Get environment variable with optional default value
   static String get(String key, {String defaultValue = ''}) {
-    return dotenv.get(key, fallback: defaultValue);
+    if (!_isInitialized) return defaultValue;
+    try {
+      return dotenv.get(key, fallback: defaultValue);
+    } catch (e) {
+      return defaultValue;
+    }
   }
 
   /// Get environment variable or null if not found
   static String? maybeGet(String key) {
-    return dotenv.maybeGet(key);
+    if (!_isInitialized) return null;
+    try {
+      return dotenv.maybeGet(key);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Check if environment variable exists
   static bool has(String key) {
-    return dotenv.isEveryDefined([key]);
+    if (!_isInitialized) return false;
+    try {
+      return dotenv.isEveryDefined([key]);
+    } catch (e) {
+      return false;
+    }
   }
 
   // Firebase Configuration Getters
@@ -74,11 +94,20 @@ class EnvironmentConfig {
 
   /// Get all environment variables (for debugging - be careful in production)
   static Map<String, String> getAllVariables() {
-    return dotenv.env;
+    if (!_isInitialized) return {};
+    try {
+      return dotenv.env;
+    } catch (e) {
+      return {};
+    }
   }
 
   /// Print current environment info (for debugging)
   static void debugPrintEnvironment() {
+    if (!_isInitialized) {
+      debugPrint('Environment not initialized yet');
+      return;
+    }
     if (isDebugMode) {
       debugPrint('=== Environment Configuration ===');
       debugPrint('Environment: $appEnv');

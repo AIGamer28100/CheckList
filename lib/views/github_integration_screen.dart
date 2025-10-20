@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/github_repository.dart';
 import '../services/github_service.dart';
 import '../services/github_sync_manager.dart';
+import '../services/secure_storage_service.dart';
 import '../config/environment_config.dart';
 import '../providers/github_providers.dart';
 
@@ -18,6 +19,7 @@ class GitHubIntegrationScreen extends ConsumerStatefulWidget {
 class _GitHubIntegrationScreenState
     extends ConsumerState<GitHubIntegrationScreen> {
   final GitHubService _githubService = GitHubService();
+  final SecureStorageService _secureStorage = SecureStorageService();
   final TextEditingController _tokenController = TextEditingController();
 
   bool _isLoading = false;
@@ -34,11 +36,35 @@ class _GitHubIntegrationScreenState
   }
 
   Future<void> _loadSavedSettings() async {
-    // Load saved settings from SharedPreferences or secure storage
-    // For now, we'll check if there's a token in environment
-    final token = EnvironmentConfig.githubToken;
-    if (token != null && token.isNotEmpty) {
-      await _connectWithToken(token);
+    setState(() => _isLoading = true);
+
+    try {
+      // Try to load token from secure storage first
+      final savedToken = await _secureStorage.getGitHubToken();
+      if (savedToken != null && savedToken.isNotEmpty) {
+        final savedRepos = await _secureStorage.getGitHubSelectedRepos();
+
+        await _connectWithToken(savedToken);
+
+        setState(() {
+          _settings = _settings.copyWith(
+            selectedRepositories: savedRepos.isNotEmpty ? savedRepos : null,
+          );
+        });
+        return;
+      }
+
+      // Fallback to environment config
+      final token = EnvironmentConfig.githubToken;
+      if (token != null && token.isNotEmpty) {
+        await _connectWithToken(token);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load saved settings: ${e.toString()}';
+      });
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -54,6 +80,10 @@ class _GitHubIntegrationScreenState
 
       if (user != null) {
         final repos = await _githubService.getUserRepositories();
+
+        // Save to secure storage
+        await _secureStorage.saveGitHubToken(token);
+        await _secureStorage.saveGitHubUsername(user.login!);
 
         setState(() {
           _isConnected = true;
@@ -92,6 +122,9 @@ class _GitHubIntegrationScreenState
   }
 
   Future<void> _disconnect() async {
+    // Clear secure storage
+    await _secureStorage.clearGitHubData();
+
     setState(() {
       _isConnected = false;
       _username = null;
@@ -126,21 +159,35 @@ class _GitHubIntegrationScreenState
   }
 
   Future<void> _saveSettings() async {
-    // Save settings to SharedPreferences or secure storage
-    // This would persist the token and selected repositories
+    try {
+      // Save selected repositories to secure storage
+      if (_settings.selectedRepositories != null) {
+        await _secureStorage
+            .saveGitHubSelectedRepos(_settings.selectedRepositories!);
+      }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Settings saved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Settings saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save settings: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _performSync() async {
-    if (_settings.selectedRepositories == null || 
+    if (_settings.selectedRepositories == null ||
         _settings.selectedRepositories!.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -157,7 +204,7 @@ class _GitHubIntegrationScreenState
 
     try {
       final syncManager = ref.read(githubSyncManagerProvider);
-      final result = await syncManager.performSync(
+      await syncManager.manualSync(
         _settings.selectedRepositories!,
         bidirectional: _settings.bidirectionalSync,
         userId: 'current_user', // TODO: Get from auth provider
@@ -165,13 +212,9 @@ class _GitHubIntegrationScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result.success 
-                  ? 'Sync completed: ${result.message}'
-                  : 'Sync failed: ${result.message}',
-            ),
-            backgroundColor: result.success ? Colors.green : Colors.red,
+          const SnackBar(
+            content: Text('Sync completed'),
+            backgroundColor: Colors.green,
           ),
         );
       }
@@ -212,13 +255,13 @@ class _GitHubIntegrationScreenState
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.sync),
-                    onPressed: status == SyncStatus.syncing ? null : _performSync,
+                    onPressed: status == SyncStatus.syncing
+                        ? null
+                        : _performSync,
                     tooltip: 'Sync Now',
                   ),
-                  loading: () => const IconButton(
-                    icon: Icon(Icons.sync),
-                    onPressed: null,
-                  ),
+                  loading: () =>
+                      const IconButton(icon: Icon(Icons.sync), onPressed: null),
                   error: (_, __) => IconButton(
                     icon: const Icon(Icons.sync_problem),
                     onPressed: _performSync,
@@ -437,7 +480,7 @@ class _GitHubIntegrationScreenState
                         color = theme.colorScheme.primary;
                         text = 'Syncing...';
                         break;
-                      case SyncStatus.completed:
+                      case SyncStatus.success:
                         icon = Icons.check_circle;
                         color = Colors.green;
                         text = 'Sync completed';
@@ -472,7 +515,10 @@ class _GitHubIntegrationScreenState
                     children: [
                       const Icon(Icons.error, color: Colors.red, size: 20),
                       const SizedBox(width: 8),
-                      Text('Error loading status', style: theme.textTheme.bodyMedium),
+                      Text(
+                        'Error loading status',
+                        style: theme.textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ),
