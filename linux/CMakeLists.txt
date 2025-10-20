@@ -161,4 +161,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 set(CPACK_SET_DESTDIR ON)
 set(CPACK_INSTALL_PREFIX "/opt/${BINARY_NAME}")
 
+# Add maintainer scripts to handle desktop file symlink
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst;${CMAKE_CURRENT_SOURCE_DIR}/prerm")
+
 include(CPack)

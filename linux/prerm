@@ -1,0 +1,12 @@
+#!/bin/bash
+# Pre-removal script for CheckList
+
+# Remove symlink from system applications directory
+rm -f /usr/share/applications/com.aigamer.checklist.desktop
+
+# Update desktop database
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database /usr/share/applications
+fi
+
+exit 0
