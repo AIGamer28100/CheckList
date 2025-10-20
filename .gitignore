@@ -48,7 +48,6 @@ app.*.map.json
 .env
 .env.local
 .env.*.local
-config/env/
 api_server/.env
 
 # Firebase configuration files (containing secrets)
