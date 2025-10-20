@@ -26,8 +26,9 @@ final syncStatusStreamProvider = StreamProvider<SyncStatus>((ref) {
   return syncManager.syncStatusStream;
 });
 
-/// Provider for last sync time
-final lastSyncTimeProvider = Provider<DateTime?>((ref) {
+/// Provider for last sync time (reactive)
+final lastSyncTimeProvider = StreamProvider<DateTime?>((ref) {
   final syncManager = ref.watch(githubSyncManagerProvider);
-  return syncManager.lastSyncTime;
+  // Whenever syncStatusStream emits, get the latest lastSyncTime
+  return syncManager.syncStatusStream.map((_) => syncManager.lastSyncTime);
 });

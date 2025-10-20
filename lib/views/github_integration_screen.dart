@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/github_repository.dart';
-import '../services/github_service.dart';
 import '../services/github_sync_manager.dart';
 import '../services/secure_storage_service.dart';
 import '../config/environment_config.dart';
@@ -18,7 +17,6 @@ class GitHubIntegrationScreen extends ConsumerStatefulWidget {
 
 class _GitHubIntegrationScreenState
     extends ConsumerState<GitHubIntegrationScreen> {
-  final GitHubService _githubService = GitHubService();
   final SecureStorageService _secureStorage = SecureStorageService();
   final TextEditingController _tokenController = TextEditingController();
 
@@ -75,21 +73,32 @@ class _GitHubIntegrationScreenState
     });
 
     try {
-      await _githubService.initialize(token);
-      final user = await _githubService.getCurrentUser();
+      final githubService = ref.read(githubServiceProvider);
+      await githubService.initialize(token);
+      final user = await githubService.getCurrentUser();
 
       if (user != null) {
-        final repos = await _githubService.getUserRepositories();
+        final repos = await githubService.getUserRepositories();
 
         // Save to secure storage
         await _secureStorage.saveGitHubToken(token);
         await _secureStorage.saveGitHubUsername(user.login!);
 
+        // Load saved selected repositories and mark them as selected
+        final savedRepos = await _secureStorage.getGitHubSelectedRepos();
+        final updatedRepos = repos.map((repo) {
+          final isSelected = savedRepos.contains(repo.fullName);
+          return repo.copyWith(isSelected: isSelected);
+        }).toList();
+
         setState(() {
           _isConnected = true;
           _username = user.login;
-          _repositories = repos;
-          _settings = _settings.copyWith(accessToken: token);
+          _repositories = updatedRepos;
+          _settings = _settings.copyWith(
+            accessToken: token,
+            selectedRepositories: savedRepos.isNotEmpty ? savedRepos : null,
+          );
         });
 
         if (mounted) {
@@ -523,15 +532,23 @@ class _GitHubIntegrationScreenState
                     ],
                   ),
                 ),
-                if (lastSyncTime != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Last synced: ${_formatLastSync(lastSyncTime)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
+                lastSyncTime.when(
+                  data: (time) {
+                    if (time == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Last synced: ${_formatLastSync(time)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color:
+                              theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
               ],
             ),
           ),
@@ -710,7 +727,6 @@ class _GitHubIntegrationScreenState
   @override
   void dispose() {
     _tokenController.dispose();
-    _githubService.dispose();
     super.dispose();
   }
 }
