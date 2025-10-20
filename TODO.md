@@ -215,21 +215,25 @@ Create a sophisticated todo/task management app that seamlessly integrates with 
 
 ### GitHub Integration
 
-- [ ] **Repository Integration**
-  - [ ] Import tasks from GitHub Issues
-  - [ ] Import tasks from Pull Requests
-  - [ ] Import tasks from Project Boards
-  - [ ] Repository selection and filtering
-  - [ ] Branch-specific task filtering
+### GitHub Integration
 
-- [ ] **Bi-directional Sync**
-  - [ ] Real-time updates from GitHub
-  - [ ] Push task updates to GitHub Issues
-  - [ ] Comment synchronization
-  - [ ] Status mapping (open/closed ↔ todo/completed)
-  - [ ] Label synchronization with tags
+- [x] **Repository Integration** ✅
+  - [x] Import tasks from GitHub Issues
+  - [x] Import tasks from Pull Requests
+  - [ ] Import tasks from Project Boards (future enhancement)
+  - [x] Repository selection and filtering
+  - [ ] Branch-specific task filtering (future enhancement)
 
-- [ ] **Advanced GitHub Features**
+- [x] **Bi-directional Sync** ✅
+  - [x] Manual sync from GitHub (import issues/PRs)
+  - [x] Push task updates to GitHub Issues
+  - [x] Status mapping (open/closed ↔ todo/completed)
+  - [x] Label synchronization with tags
+  - [x] Auto-sync capability with configurable intervals
+  - [ ] Real-time updates from GitHub (future enhancement)
+  - [ ] Comment synchronization (future enhancement)
+
+- [ ] **Advanced GitHub Features** (future enhancements)
   - [ ] Code review reminders
   - [ ] Release milestone tracking
   - [ ] Commit-linked tasks
